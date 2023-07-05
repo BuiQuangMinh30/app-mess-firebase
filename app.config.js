@@ -17,7 +17,8 @@ export default {
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      bundleIdentifier: "com.buiminh30.app-mess-firebase"
     },
     android: {
       adaptiveIcon: {

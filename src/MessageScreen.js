@@ -4,6 +4,7 @@ import {
   addDoc,
   orderBy,
   query,
+  getDocs
 } from "firebase/firestore";
 import {
   SafeAreaView,
@@ -17,8 +18,9 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { auth, database } from "../firebase";
+import { auth, database,users } from "../firebase";
 import { useState, useEffect } from "react";
+import { firebase } from "@react-native-firebase/firestore";
 
 const messages = [
   {
@@ -64,31 +66,50 @@ const messages = [
 ];
 
 export default function MessageScreen({ user, navigation }) {
+
+  console.log('user', users);
   const [users, setUsers] = useState(null);
+  // useEffect(() => {
+  //   const getUsers = async () => {
+  //     // const queryFB = await collection(database, "chats");
+  //     // const usersData = queryFB.docs.map((doc)=>doc.data())
+  //     // .filter((user)=> user._id !== auth.apiKey)
+  //     const querySnapshot = await getDocs(collection(database, 'chats'));
+  //      const usersData = querySnapshot.docs.map((doc) => doc.data())
+  //      .filter((user)=> console.log('123', user.user._id))
+  //     //  user.user._id != auth.currentUser.email
+  //       console.log('users', usersData)
+  //     setUsers(usersData);
+  //   };
 
-  const getUsers = async () => {
-    const queryFB = await collection(database, "users")
-      .where("uid", "!=", user.uid)
-      .get();
-
-    const allUsers = queryFB.docs.map((docSnap) => docSnap.data());
-    setUsers(allUsers);
-  };
-
-  useEffect(() => {
-    getUsers();
-  }, []);
-
+  //   getUsers();
+  // }, []);
+  useEffect (() => {
+    const getUsers = async() => {
+      try {
+        const usersList = await firebase.auth().listUsers();
+        const userData = usersList.users.map((userRecord) => ({
+          uid: userRecord.uid,
+          email: userRecord.email,
+          displayName: userRecord.displayName,
+          photoURL: userRecord.photoURL,
+          isAnonymous: userRecord.isAnonymous,
+        }))
+      }catch(e){
+        console.log('ẻ',e);
+      }
+    }
+  })
   return (
     <SafeAreaView>
       <StatusBar />
       <View>
         <FlatList
-          data={messages}
+          data={users}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => navigation.navigate("Chats", { name: item.name })}
+              onPress={() => navigation.navigate("Chat", { name: item.name })}
             >
               <View style={styles.card}>
                 <Image
